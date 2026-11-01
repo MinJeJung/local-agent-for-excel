@@ -1,0 +1,4 @@
+node_modules/
+logs/
+spike/
+.DS_Store

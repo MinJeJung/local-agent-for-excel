@@ -1,0 +1,12 @@
+{
+  "name": "local-agent-for-excel",
+  "interface": { "displayName": "Local Agent for Excel" },
+  "plugins": [
+    {
+      "name": "local-agent-for-excel",
+      "source": { "source": "local", "path": "./" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    }
+  ]
+}

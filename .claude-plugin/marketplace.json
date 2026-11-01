@@ -1,0 +1,14 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "local-agent-for-excel",
+  "description": "Excel task pane that runs your own Claude Code and Codex (subscription login) with your skills, MCP and CLI tools.",
+  "owner": { "name": "MinJeJung", "url": "https://github.com/MinJeJung" },
+  "plugins": [
+    {
+      "name": "local-agent-for-excel",
+      "description": "Install, run and manage the Local Agent for Excel task pane on macOS.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

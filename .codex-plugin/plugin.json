@@ -1,0 +1,20 @@
+{
+  "name": "local-agent-for-excel",
+  "version": "0.2.0",
+  "description": "Excel task pane that runs your own Claude Code and Codex (subscription login) with your skills, MCP and CLI tools. macOS.",
+  "author": { "name": "MinJeJung" },
+  "homepage": "https://github.com/MinJeJung/local-agent-for-excel",
+  "repository": "https://github.com/MinJeJung/local-agent-for-excel",
+  "license": "MIT",
+  "keywords": ["excel", "office-add-in", "claude-code", "codex", "mcp", "spreadsheet"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Local Agent for Excel",
+    "shortDescription": "Your Claude Code and Codex inside Excel.",
+    "longDescription": "Installs a macOS Excel task pane that runs your own Claude Code and Codex CLIs with your subscription login, skills, MCP servers and CLI tools, and writes results live into the open workbook.",
+    "developerName": "MinJeJung",
+    "category": "Productivity",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": ["Install Local Agent for Excel", "Check whether the Excel agent bridge is running"]
+  }
+}

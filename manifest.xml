@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="TaskPaneApp">
+  <Id>a9a49b61-6576-4dfd-a697-c9d2de5ac2b5</Id>
+  <Version>0.2.0</Version>
+  <ProviderName>LocalXL</ProviderName>
+  <DefaultLocale>ko-KR</DefaultLocale>
+  <DisplayName DefaultValue="Local Agent for Excel" />
+  <Description DefaultValue="내 Claude Code·Codex와 스킬·MCP로 Excel 작업" />
+  <IconUrl DefaultValue="http://localhost:3939/taskpane/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="http://localhost:3939/taskpane/assets/icon-64.png" />
+  <SupportUrl DefaultValue="https://github.com/MinJeJung/local-agent-for-excel" />
+  <AppDomains><AppDomain>http://localhost:3939</AppDomain></AppDomains>
+  <Hosts><Host Name="Workbook" /></Hosts>
+  <DefaultSettings><SourceLocation DefaultValue="http://localhost:3939/taskpane/index.html" /></DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Workbook">
+        <DesktopFormFactor>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="LocalXL.Group">
+                <Label resid="LocalXL.Label" />
+                <Icon><bt:Image size="16" resid="Icon.16" /><bt:Image size="32" resid="Icon.32" /><bt:Image size="80" resid="Icon.80" /></Icon>
+                <Control xsi:type="Button" id="LocalXL.Open">
+                  <Label resid="LocalXL.Label" />
+                  <Supertip><Title resid="LocalXL.Label" /><Description resid="LocalXL.Tip" /></Supertip>
+                  <Icon><bt:Image size="16" resid="Icon.16" /><bt:Image size="32" resid="Icon.32" /><bt:Image size="80" resid="Icon.80" /></Icon>
+                  <Action xsi:type="ShowTaskpane"><TaskpaneId>LocalXLPane</TaskpaneId><SourceLocation resid="Pane.Url" /></Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16" DefaultValue="http://localhost:3939/taskpane/assets/icon-16.png" />
+        <bt:Image id="Icon.32" DefaultValue="http://localhost:3939/taskpane/assets/icon-32.png" />
+        <bt:Image id="Icon.80" DefaultValue="http://localhost:3939/taskpane/assets/icon-80.png" />
+      </bt:Images>
+      <bt:Urls><bt:Url id="Pane.Url" DefaultValue="http://localhost:3939/taskpane/index.html" /></bt:Urls>
+      <bt:ShortStrings><bt:String id="LocalXL.Label" DefaultValue="Local Agent" /></bt:ShortStrings>
+      <bt:LongStrings><bt:String id="LocalXL.Tip" DefaultValue="Local Agent for Excel 작업창 열기" /></bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

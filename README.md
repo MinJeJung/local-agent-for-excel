@@ -76,14 +76,14 @@ git clone https://github.com/MinJeJung/local-agent-for-excel.git && zsh local-ag
    ```bash
    zsh ~/.localxl/app/scripts/sheets-attach.sh "https://docs.google.com/spreadsheets/d/<ID>/edit"
    ```
-3. 시트를 새로 고친 뒤 메뉴 **Local Agent > 열기**를 누릅니다.
+3. 시트를 새로 고친 뒤 메뉴 **확장 프로그램 > Local Agent > 열기**를 누릅니다.
 4. 처음에는 Google 권한 승인 창이 뜹니다. 내 계정이 만든 스크립트라 "확인되지 않은 앱" 경고가 나옵니다. 고급 > 이동 > 모두 선택 > 계속을 누릅니다. 요청하는 권한은 "현재 스프레드시트 보기·편집"과 "사이드바 표시"뿐입니다.
 5. 브라우저가 로컬 네트워크 접근을 물으면 허용을 누릅니다. 사이드바가 `ws://localhost`로 브리지에 연결하려면 필요합니다.
 6. 사이드바의 연결 키 칸에 붙여 넣습니다(Cmd+V). 2번에서 키가 클립보드에 복사됩니다.
 
 Excel과 다른 점:
 - 4~6번은 스프레드시트마다 한 번씩 다시 합니다. 스크립트가 시트마다 따로 만들어지기 때문입니다.
-- 연결 키는 소스에 넣지 않고, 그 시트의 내 사용자 속성(Apps Script UserProperties)에만 저장합니다. 다른 편집자는 내 키를 볼 수 없습니다. 키를 바꾸려면 메뉴 **Local Agent > 연결 키 다시 입력**을 누릅니다.
+- 연결 키는 소스에 넣지 않고, 그 시트의 내 사용자 속성(Apps Script UserProperties)에만 저장합니다. 다른 편집자는 내 키를 볼 수 없습니다. 키를 바꾸려면 메뉴 **확장 프로그램 > Local Agent > 연결 키 다시 입력**을 누릅니다.
 - 다른 편집자도 사이드바를 열 수 있습니다. 하지만 그 사람의 맥에 브리지와 키가 없으면 연결되지 않습니다. 편집자를 모두 믿을 수 있는 시트에만 붙이세요. 스크립트 코드는 편집자가 바꿀 수 있습니다.
 - `run_script`는 Apps Script 코드(`ss`, `SpreadsheetApp`)를 실행합니다. 표는 굵은 머리글, 줄무늬, 필터로 만듭니다.
 - 범위 칩은 2초마다 선택을 확인해 갱신합니다.
@@ -200,14 +200,14 @@ The same bridge also works in a Google Sheets sidebar. Finish the install above 
    ```bash
    zsh ~/.localxl/app/scripts/sheets-attach.sh "https://docs.google.com/spreadsheets/d/<ID>/edit"
    ```
-3. Reload the sheet and click **Local Agent > 열기** in the menu.
+3. Reload the sheet and click **Extensions > Local Agent > 열기**.
 4. The first time, Google asks for authorization. The script is yours, so you see an "unverified app" warning. Click Advanced > Go to > Select all > Continue. It only asks to view and edit the current spreadsheet and to show a sidebar.
 5. If the browser asks for local network access, allow it. The sidebar needs it to reach the bridge at `ws://localhost`.
 6. Paste the key into the sidebar (Cmd+V). Step 2 copied it to the clipboard.
 
 Differences from Excel:
 - Repeat steps 4 to 6 for each spreadsheet. Each one gets its own script.
-- The key is not in the source. It is stored only in your user properties for that sheet (Apps Script UserProperties), so other editors cannot see it. Use **Local Agent > 연결 키 다시 입력** to change it.
+- The key is not in the source. It is stored only in your user properties for that sheet (Apps Script UserProperties), so other editors cannot see it. Use **Extensions > Local Agent > 연결 키 다시 입력** to change it.
 - Other editors can open the sidebar, but it cannot connect without a bridge and key on their Mac. Attach it only to sheets whose editors you trust. Editors can change the script code.
 - `run_script` runs Apps Script code (`ss`, `SpreadsheetApp`). Tables get a bold header, banding and a filter.
 - The range chip checks the selection every 2 seconds.
@@ -250,6 +250,6 @@ Settings and logs stay in `~/.localxl`. Delete that folder to remove everything.
 
 ---
 
-Not affiliated with or endorsed by Anthropic, OpenAI or Microsoft. Claude, Codex and Excel are trademarks of their owners.
+Not affiliated with or endorsed by Anthropic, OpenAI, Microsoft or Google. Claude, Codex, Excel and Google Sheets are trademarks of their owners.
 
-License: [MIT](LICENSE)
+License: [MIT](LICENSE) · [Privacy](PRIVACY.md) · [Terms](TERMS.md)

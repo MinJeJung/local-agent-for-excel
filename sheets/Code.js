@@ -4,8 +4,10 @@
  */
 const MAX_UNDO_CELLS = 20000;
 
+// 시트에 붙인 스크립트와 Marketplace 부가기능 모두 확장 프로그램 메뉴 아래에 둔다.
+// 부가기능은 권한 승인 전(AuthMode.NONE)에도 onOpen이 불리므로 메뉴만 만든다.
 function onOpen() {
-  SpreadsheetApp.getUi().createMenu("Local Agent").addItem("열기", "showSidebar").addItem("연결 키 다시 입력", "resetKey").addToUi();
+  SpreadsheetApp.getUi().createAddonMenu().addItem("열기", "showSidebar").addItem("연결 키 다시 입력", "resetKey").addToUi();
 }
 function onInstall() { onOpen(); }
 function showSidebar() {
@@ -23,7 +25,7 @@ function saveConnection(token, port) {
 }
 function resetKey() {
   PropertiesService.getUserProperties().deleteProperty("token");
-  SpreadsheetApp.getUi().alert("연결 키를 지웠습니다. Local Agent > 열기에서 다시 입력하세요.");
+  SpreadsheetApp.getUi().alert("연결 키를 지웠습니다. 확장 프로그램 > Local Agent > 열기에서 다시 입력하세요.");
 }
 
 // ── 주소와 값 ──

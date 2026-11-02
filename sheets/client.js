@@ -46,7 +46,7 @@
       // Apps Script 화면 변환이 스크립트 안의 태그 문자열을 잘못 읽어 DOM으로 만든다
       const el = (tag, props) => Object.assign(document.createElement(tag), props);
       const help = el("p", { textContent: "Mac 터미널에서 아래 명령을 실행하면 키가 클립보드에 복사됩니다. 여기에 붙여 넣으세요. 이 시트에서 한 번만 입력합니다." });
-      box.append(el("b", { textContent: "연결 키를 입력하세요" }), help, el("code", { textContent: "zsh ~/.localxl/app/scripts/sheets-attach.sh <이 시트 주소>" }),
+      box.append(el("b", { textContent: "연결 키를 입력하세요" }), help, el("code", { textContent: "zsh ~/.localxl/app/scripts/sheets-attach.sh key" }),
         el("input", { id: "keyIn", type: "password", placeholder: "연결 키", autocomplete: "off" }), el("button", { id: "keySave", textContent: "저장" }));
       document.getElementById("log").appendChild(box);
       const save = async () => {
@@ -75,7 +75,7 @@
       // Apps Script는 줄의 // 뒤를 주석으로 지운다. 문자열 안에서도 그래서 \/로 나눠 쓴다
       return { url: `ws:\/\/localhost:${c.port}/ws`, token: c.token };
     },
-    noKeyMessage: "연결 키가 없습니다. 메뉴 Local Agent > 연결 키 다시 입력을 누르세요.",
+    noKeyMessage: "연결 키가 없습니다. 확장 프로그램 > Local Agent > 연결 키 다시 입력을 누르세요.",
     // 사이드바에는 선택 변경 이벤트가 없어 2초마다 확인한다
     watchSelection(cb) {
       let last = null;

@@ -1,5 +1,5 @@
 // Excel 도구 실행부 (Office.js). 브리지가 보낸 tool_call을 여기서 처리한다.
-/* global Excel */
+/* global Excel, Office */
 (function () {
   const MAX_UNDO_CELLS = 50000;
   const undoStack = []; // { label, items: [{ sheet, address, formulas }] }
@@ -256,6 +256,16 @@
     if (!tools[name]) return { ok: false, error: `알 수 없는 도구: ${name}` };
     try { return await tools[name](args || {}); } catch (e) { return { ok: false, error: e.message || String(e), code: e.code }; }
   }
+
+  // 작업창 화면(app.js)이 쓰는 호스트 정보. 연결 키는 설치 때 매니페스트 주소(?k=)에 들어간다. 페이지 자체에는 키가 없다
+  window.LXHost = {
+    name: "excel",
+    label: "Excel",
+    ready: (cb) => Office.onReady(cb),
+    connection: async () => ({ url: `ws://${location.host}/ws`, token: new URLSearchParams(location.search).get("k") }),
+    noKeyMessage: "연결 키가 없습니다. 설치 스크립트를 다시 실행한 뒤 Excel을 Cmd+Q로 완전히 종료하고 다시 여세요.",
+    watchSelection(cb) { try { Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, () => cb()); } catch (e) {} },
+  };
 
   window.LXTools = {
     run,

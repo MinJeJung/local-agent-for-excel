@@ -47,7 +47,7 @@ export const TOOLS = [
   },
   {
     name: "manage_sheet",
-    description: "시트를 추가(add), 이름 변경(rename), 활성화(activate), 삭제(delete), 숨김(hide), 숨김 해제(unhide)한다. delete·hide는 names로 여러 개를 한 번에 처리한다. 결과에 작업 후 시트 목록이 들어 있다. 시트 삭제는 되돌리기로 복구되지 않는다.",
+    description: "시트를 추가(add), 이름 변경(rename), 활성화(activate), 삭제(delete), 숨김(hide), 숨김 해제(unhide)한다. delete·hide는 names로 여러 개를 한 번에 처리한다. 결과에 작업 후 시트 목록이 들어 있다. 시트 삭제는 Google Sheets에서는 code가 Apps Script 동기 함수 본문이고 ss(현재 스프레드시트)와 SpreadsheetApp을 쓸 수 있다. 예: ss.getSheetByName('Sheet1').getRange('A2:D20').sort({ column: 2, ascending: false }); return 'ok'. 되돌리기로 복구되지 않는다.",
     schema: {
       action: z.enum(["add", "rename", "activate", "delete", "hide", "unhide"]),
       name: z.string().optional(),
@@ -57,7 +57,7 @@ export const TOOLS = [
   },
   {
     name: "create_table",
-    description: "범위를 Excel 표(ListObject)로 만든다.",
+    description: "범위를 표로 만든다. Excel은 표(ListObject), Google Sheets는 굵은 머리글·줄무늬·필터를 적용한다.",
     schema: {
       range: addr,
       hasHeaders: z.boolean().default(true),

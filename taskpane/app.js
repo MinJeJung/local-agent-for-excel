@@ -1,9 +1,9 @@
 // 작업창 채팅 UI: 브리지와 WebSocket으로 연결하고, 대화만 보여 준다 (도구 실행은 진행 문구 한 줄로만).
-/* global Office, Excel, LXTools */
+/* global LXTools, LXHost */
 (function () {
   const $ = (id) => document.getElementById(id);
   const logEl = $("log"), input = $("input"), sendBtn = $("send"), slashEl = $("slash");
-  const DOING = { excel: "Excel 작업 중", web: "웹에서 찾는 중", mcp: "도구 사용 중", skill: "스킬 사용 중", cli: "명령 실행 중", agent: "에이전트 작업 중" };
+  const DOING = { excel: `${LXHost.label} 작업 중`, web: "웹에서 찾는 중", mcp: "도구 사용 중", skill: "스킬 사용 중", cli: "명령 실행 중", agent: "에이전트 작업 중" };
   const ICON_SEND = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5"/></svg>';
   const ICON_STOP = '<svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" rx="2" fill="currentColor"/></svg>';
   const emptyTpl = $("empty").cloneNode(true);
@@ -186,9 +186,9 @@
   // 에이전트가 쓴 범위를 선택해 보여 줄 때(실행 중이거나 도구 실행 직후)는 칩을 내린다.
   let agentSelUntil = 0;
   function showSel(addr) { $("selText").textContent = addr || ""; $("selChip").hidden = !addr; }
-  async function onSelChanged() {
+  async function onSelChanged(known) {
     if (running || Date.now() < agentSelUntil) return showSel(null);
-    const sel = await LXTools.selection();
+    const sel = typeof known === "string" || known === null ? known : await LXTools.selection();
     showSel(sel && sel.includes(":") ? sel : null);
   }
   $("selClose").onclick = () => { showSel(null); input.focus(); };
@@ -202,16 +202,18 @@
   }
 
   // ── 브리지 연결 ──
-  // 연결 키는 설치 때 매니페스트 주소(?k=)에 들어간다. 페이지 자체에는 키가 없다
-  const TOKEN = new URLSearchParams(location.search).get("k");
+  // 연결 주소와 키는 호스트가 정한다 (Excel: 매니페스트 주소의 ?k=, Sheets: 이 시트의 사용자 속성)
+  let conn = null;
   let fresh = true; // 처음 연결할 때만 새 대화. 다시 연결될 때는 대화를 잇는다
-  function connect() {
-    if (!TOKEN) { $("conn").textContent = "연결 안 됨"; return add("err", "연결 키가 없습니다. 설치 스크립트를 다시 실행한 뒤 Excel을 Cmd+Q로 완전히 종료하고 다시 여세요."); }
-    ws = new WebSocket(`ws://${location.host}/ws?token=${encodeURIComponent(TOKEN)}${fresh ? "&fresh=1" : ""}`);
+  async function connect() {
+    if (!conn) { try { conn = await LXHost.connection(); } catch (e) { conn = null; } }
+    if (!conn || !conn.token) { $("conn").textContent = "연결 안 됨"; return add("err", LXHost.noKeyMessage); }
+    ws = new WebSocket(`${conn.url}?token=${encodeURIComponent(conn.token)}${fresh ? "&fresh=1" : ""}`);
     fresh = false;
     ws.onopen = () => { $("conn").classList.add("on"); pushSettings(); };
-    ws.onclose = () => {
+    ws.onclose = (e) => {
       $("conn").classList.remove("on");
+      if (e.code === 4001) { conn = null; $("conn").textContent = "연결 키가 맞지 않음"; return add("err", "연결 키가 맞지 않습니다. " + LXHost.noKeyMessage); }
       if (running) { add("err", "브리지 연결이 끊겼습니다."); finishTurn(); }
       setTimeout(connect, 2000);
     };
@@ -241,13 +243,13 @@
     };
   }
 
-  Office.onReady(async () => {
+  LXHost.ready(async () => {
     setRunning(false);
     connect();
     // 작업창을 열 때 이미 여러 셀을 골라 두었으면 칩으로 보여 준다 (기본 A1 한 칸은 보이지 않는다)
     const sel = await LXTools.selection();
     if (sel && sel.includes(":")) showSel(sel);
-    try { Office.context.document.addHandlerAsync(Office.EventType.DocumentSelectionChanged, onSelChanged); } catch (e) {}
+    LXHost.watchSelection(onSelChanged);
     input.focus();
   });
 })();

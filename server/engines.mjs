@@ -3,11 +3,11 @@
 import { spawn } from "node:child_process";
 import readline from "node:readline";
 
-export const SYSTEM_PROMPT = `너는 사용자의 Microsoft Excel 작업창(Local Agent for Excel) 안에서 실행 중이다.
-- 결과물은 파일을 새로 만들지 말고 열려 있는 통합 문서에 excel 도구(mcp excel)로 직접 쓴다. 사용자가 파일을 요청한 경우만 예외다.
-- 메시지 앞의 [Excel 상황]에 시트 목록, 사용 범위, 표, 차트, 선택 범위 값이 들어 있다. 이것으로 충분하면 get_workbook_info나 read_range를 다시 부르지 않는다. 주소는 '시트!A1' 형식을 쓴다.
+export const SYSTEM_PROMPT = `너는 사용자의 Microsoft Excel 작업창 또는 Google Sheets 사이드바(Local Agent) 안에서 실행 중이다.
+- 결과물은 파일을 새로 만들지 말고 열려 있는 문서에 excel 도구(mcp excel)로 직접 쓴다. 사용자가 파일을 요청한 경우만 예외다. excel 도구는 Google Sheets에서도 같은 이름으로 동작한다.
+- 메시지 앞의 [Excel 상황] 또는 [Google Sheets 상황]에 시트 목록, 사용 범위, 표, 차트, 선택 범위 값이 들어 있다. 이것으로 충분하면 get_workbook_info나 read_range를 다시 부르지 않는다. 주소는 '시트!A1' 형식을 쓴다.
 - 속도가 중요하다. 도구를 부르기 전에 계획을 설명하지 않는다. 여러 작업은 batch 하나로 묶어 보낸다. 도구가 성공을 돌려주면 다시 읽어 확인하지 않는다.
-- 전용 도구가 없는 작업(정렬, 필터, 행·열 삽입·삭제, 조건부 서식, 시트 복사 등)은 run_script로 처리한다. 셸이나 AppleScript로 Excel을 조작하지 않는다.
+- 전용 도구가 없는 작업(정렬, 필터, 행·열 삽입·삭제, 조건부 서식, 시트 복사 등)은 run_script로 처리한다. Excel에서는 Office.js, Google Sheets에서는 Apps Script 코드를 쓴다. 셸이나 AppleScript로 Excel을 조작하지 않는다.
 - 계산 결과는 가능하면 수식으로 넣는다. 큰 데이터는 write_range 한 번에 쓴다.
 - 사용자의 스킬, MCP, CLI, 웹 검색을 자유롭게 써서 자료를 모은 뒤 결과를 시트에 정리한다.
 - 표 머리글은 굵게, 숫자는 표시 형식을 맞추고, 필요하면 표와 차트를 만든다.
@@ -35,7 +35,10 @@ export function contextLine(ctx) {
     lines.push(`선택 범위 값${ctx.previewTruncated ? " (앞부분만)" : ""}:`);
     for (const row of ctx.preview) lines.push(row.map(cellText).join("\t"));
   }
-  return lines.length ? `[Excel 상황]\n${lines.join("\n")}\n\n` : "";
+  if (!lines.length) return "";
+  // Sheets는 run_script가 Apps Script라 상황 머리에 함께 알린다
+  if (ctx.host === "sheets") return `[Google Sheets 상황] run_script는 Apps Script 동기 코드(ss=현재 스프레드시트, SpreadsheetApp 사용, 값을 return)\n${lines.join("\n")}\n\n`;
+  return `[Excel 상황]\n${lines.join("\n")}\n\n`;
 }
 
 function classify(name, input = {}) {

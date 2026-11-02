@@ -1,6 +1,6 @@
 {
   "name": "local-agent-for-excel",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Excel task pane that runs your own Claude Code and Codex (subscription login) with your skills, MCP and CLI tools. macOS.",
   "author": { "name": "MinJeJung" },
   "homepage": "https://github.com/MinJeJung/local-agent-for-excel",

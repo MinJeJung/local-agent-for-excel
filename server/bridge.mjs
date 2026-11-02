@@ -83,7 +83,7 @@ let seq = 0;
 const send = (msg) => { if (pane && pane.readyState === 1) pane.send(JSON.stringify(msg)); };
 
 function relay(name, args, timeoutMs = 60000) {
-  if (!pane) return Promise.resolve({ ok: false, error: "Excel 작업창이 연결되지 않았습니다. Excel에서 LocalXL 작업창을 여세요." });
+  if (!pane) return Promise.resolve({ ok: false, error: "작업창이 연결되지 않았습니다. Excel 또는 Google Sheets에서 Local Agent를 여세요." });
   const callId = `t${++seq}`;
   send({ type: "tool_call", callId, name, args });
   return new Promise((resolve) => {
@@ -93,7 +93,7 @@ function relay(name, args, timeoutMs = 60000) {
 }
 
 function buildMcp() {
-  const mcp = new McpServer({ name: "excel", version: "0.2.0" });
+  const mcp = new McpServer({ name: "excel", version: "0.3.0" });
   for (const t of TOOLS) {
     mcp.tool(t.name, t.description, t.schema, async (args) => {
       const r = await relay(t.name, args);
@@ -244,7 +244,7 @@ wss.on("connection", (sock, req) => {
     if (msg.type === "tool_result" && pending.has(msg.callId)) { pending.get(msg.callId)(msg); pending.delete(msg.callId); }
     else if (msg.type === "chat") {
       // 통합 문서가 여러 개면 요청한 작업창에 도구를 보낸다. 다른 작업창의 작업이 도는 중이면 받지 않는다
-      if (job && pane !== sock) sock.send(JSON.stringify({ type: "event", ev: { type: "error", text: "다른 통합 문서의 작업이 실행 중입니다." } }));
+      if (job && pane !== sock) sock.send(JSON.stringify({ type: "event", ev: { type: "error", text: "다른 문서의 작업이 실행 중입니다." } }));
       else { pane = sock; startChat(msg); }
     }
     else if (job && pane !== sock) return; // 다른 통합 문서의 작업은 그 작업창만 멈추거나 바꾼다

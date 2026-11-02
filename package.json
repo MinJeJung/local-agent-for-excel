@@ -1,6 +1,6 @@
 {
   "name": "localxl",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "로컬 Claude Code·Codex를 엔진으로 쓰는 Excel 작업창 애드인",
   "type": "module",

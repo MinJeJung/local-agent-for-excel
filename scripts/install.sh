@@ -24,6 +24,7 @@ if [[ "$ROOT" != "$APP" ]]; then
   rsync -a --delete "$ROOT/server/" "$APP/server/"
   rsync -a --delete "$ROOT/taskpane/" "$APP/taskpane/"
   rsync -a --delete "$ROOT/scripts/" "$APP/scripts/"
+  rsync -a --delete "$ROOT/sheets/" "$APP/sheets/"
   cp "$ROOT/package.json" "$ROOT/package-lock.json" "$ROOT/manifest.xml" "$APP/"
 fi
 (cd "$APP" && npm install --omit=dev --no-audit --no-fund --silent)

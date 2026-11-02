@@ -188,7 +188,8 @@
   function showSel(addr) { $("selText").textContent = addr || ""; $("selChip").hidden = !addr; }
   async function onSelChanged() {
     if (running || Date.now() < agentSelUntil) return showSel(null);
-    showSel(await LXTools.selection());
+    const sel = await LXTools.selection();
+    showSel(sel && sel.includes(":") ? sel : null);
   }
   $("selClose").onclick = () => { showSel(null); input.focus(); };
 

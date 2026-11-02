@@ -17,7 +17,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const home = path.join(os.homedir(), ".localxl");
 fs.mkdirSync(path.join(home, "logs"), { recursive: true });
 // LaunchAgent가 표준 출력을 ~/.localxl/logs/bridge.log 에 쌓는다
-const log = (...a) => console.log(`${new Date().toLocaleString("sv-SE", { timeZone: "Asia/Seoul" })} ${a.join(" ")}`);
+const log = (...a) => console.log(`${new Date().toLocaleString("sv-SE")} ${a.join(" ")}`);
 
 // ── 설정: ~/.localxl/config.json (없으면 만든다) ──
 function which(bin, env = process.env) { try { return execFileSync("/bin/sh", ["-c", 'command -v "$1"', "sh", bin], { encoding: "utf8", env }).trim() || null; } catch { return null; } }
@@ -93,7 +93,7 @@ function relay(name, args, timeoutMs = 60000) {
 }
 
 function buildMcp() {
-  const mcp = new McpServer({ name: "excel", version: "0.1.0" });
+  const mcp = new McpServer({ name: "excel", version: "0.2.0" });
   for (const t of TOOLS) {
     mcp.tool(t.name, t.description, t.schema, async (args) => {
       const r = await relay(t.name, args);
@@ -147,12 +147,12 @@ function startChat({ engine, prompt, ctx }) {
       }
     }
     if (ev.type === "done" && ev.sessionId && myGen === gen) setSession(engine, ev.sessionId);
-    if (ev.type === "exit") { job = null; log(`차례 종료 ${engine} code=${ev.code} 전체=${((Date.now() - t0) / 1000).toFixed(1)}s 첫반응=${(first / 1000).toFixed(1)}s 도구=${tools.length}[${tools.join(", ").slice(0, 200)}]`);
+    if (ev.type === "exit") { job = null; log(`차례 종료 ${engine} code=${ev.code} 전체=${((Date.now() - t0) / 1000).toFixed(1)}s 첫반응=${(first / 1000).toFixed(1)}s 도구=${tools.length}${cfg.debug ? `[${tools.join(", ").slice(0, 200)}]` : ""}`);
       if (claude?.stale) restartClaude(); // 실행 중에 설정이 바뀌었으면 이제 새로 띄운다
     }
     send({ type: "event", ev });
   };
-  log(`대화 시작 ${engine} resume=${sessions[engine] || "-"} ${prompt.slice(0, 80).replace(/\n/g, " ")}`);
+  log(`대화 시작 ${engine} resume=${sessions[engine] || "-"}${cfg.debug ? " " + prompt.slice(0, 80).replace(/\n/g, " ") : ""}`); // 요청 내용은 debug일 때만 남긴다
   if (engine === "codex") {
     job = { engine, runner: runCodex({ prompt, ctx, sessionId: sessions.codex, cfg, opts: paneOpts.codex, bridgeUrl: BRIDGE, emit }) };
   } else {
@@ -178,7 +178,7 @@ app.use((req, res, next) => (HOSTS.has(req.headers.host) ? next() : res.status(4
 app.use(express.json({ limit: "50mb" }));
 // 토큰은 페이지에 넣지 않는다. 설치 때 매니페스트 주소(?k=)에 넣어 Excel만 알게 한다
 app.use("/taskpane", express.static(path.join(root, "taskpane"), { etag: false, maxAge: 0 }));
-app.get("/health", (_req, res) => res.json({ ok: true, pane: !!pane, running: job?.engine || null }));
+app.get("/health", (_req, res) => res.json({ ok: true, app: "localxl", pane: !!pane, running: job?.engine || null }));
 
 app.post("/mcp", async (req, res) => {
   if (req.headers.authorization !== `Bearer ${cfg.token}`) return res.status(401).json({ error: "unauthorized" });
@@ -230,9 +230,11 @@ const wss = new WebSocketServer({ server, path: "/ws" });
 wss.on("connection", (sock, req) => {
   const q = new URL(req.url, "http://x").searchParams;
   if (!HOSTS.has(req.headers.host) || q.get("token") !== cfg.token) return sock.close(4001, "unauthorized");
-  pane = sock;
+  // 다른 통합 문서의 작업이 도는 중이면 그 작업창을 그대로 둔다
+  const busyElsewhere = job && pane && pane !== sock && pane.readyState === 1;
+  if (!busyElsewhere) pane = sock;
   // 작업창을 새로 열면 빈 화면이므로 새 대화로 시작한다. 연결만 다시 된 경우(브리지 재시작)는 대화를 잇는다
-  if (q.get("fresh")) { resetSessions(); restartClaude(); }
+  if (q.get("fresh") && !job) { resetSessions(); restartClaude(); }
   log(`작업창 연결됨${q.get("fresh") ? " (새 대화)" : ""}`);
   send({ type: "hello", slashCommands: cache.slashCommands || [], running: job?.engine || null, engines,
     billing: cfg.allowApiKey ? "api" : "subscription" });
@@ -245,6 +247,7 @@ wss.on("connection", (sock, req) => {
       if (job && pane !== sock) sock.send(JSON.stringify({ type: "event", ev: { type: "error", text: "다른 통합 문서의 작업이 실행 중입니다." } }));
       else { pane = sock; startChat(msg); }
     }
+    else if (job && pane !== sock) return; // 다른 통합 문서의 작업은 그 작업창만 멈추거나 바꾼다
     else if (msg.type === "stop") { job?.runner.stop(); log("중지 요청"); }
     else if (msg.type === "new_session") { job?.runner.stop(); resetSessions(); log("새 대화"); restartClaude(); }
     else if (msg.type === "settings") applySettings(msg);
@@ -266,4 +269,9 @@ for (const sig of ["SIGTERM", "SIGINT", "SIGHUP"]) process.on(sig, () => {
   process.exit(0);
 });
 
+wss.on("error", () => {}); // ws가 서버 오류를 다시 던지므로 아래 server 처리기에서만 다룬다
+server.on("error", (e) => {
+  log(e.code === "EADDRINUSE" ? `포트 ${cfg.port}을 다른 프로그램이 쓰고 있습니다. ~/.localxl/config.json의 port를 바꾸고 설치를 다시 실행하세요.` : `브리지 시작 실패: ${e.message}`);
+  process.exit(1);
+});
 server.listen(cfg.port, "127.0.0.1", () => log(`LocalXL 브리지 시작 ${BRIDGE} (claude=${cfg.claudeBin}, codex=${cfg.codexBin})`));

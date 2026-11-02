@@ -97,6 +97,6 @@ TOOLS.push({
   description:
     "여러 excel 도구를 순서대로 한 번에 실행한다. 왕복을 줄이려면 쓰기·서식·표·차트 작업을 묶어 보낸다. 하나가 실패하면 거기서 멈추고 그때까지의 결과를 돌려준다. 예: ops=[{tool:'write_range',args:{range:'Sheet1!A1',values:[[1,2]]}},{tool:'format_range',args:{range:'Sheet1!A1:B1',bold:true}}]",
   schema: {
-    ops: z.array(z.object({ tool: z.enum(OP_NAMES), args: z.record(z.any()).default({}) })).min(1),
+    ops: z.array(z.object({ tool: z.enum(OP_NAMES), args: z.record(z.string(), z.any()).default({}) })).min(1),
   },
 });

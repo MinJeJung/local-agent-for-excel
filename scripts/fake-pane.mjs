@@ -3,7 +3,10 @@
 import fs from "node:fs"; import os from "node:os"; import WebSocket from "ws";
 const cfg = JSON.parse(fs.readFileSync(os.homedir() + "/.localxl/config.json", "utf8"));
 const [engine = "claude", prompt = "get_workbook_info로 시트 목록을 확인하고 Sheet1!A1에 '안녕'을 써줘"] = process.argv.slice(2);
-const ws = new WebSocket(`ws://localhost:${cfg.port}/ws?token=${cfg.token}&fresh=1`);
+const ws = new WebSocket(`ws://localhost:${cfg.port || 3939}/ws?token=${cfg.token}&fresh=1`);
+let failed = false;
+ws.on("error", (e) => { console.error("연결 실패:", e.message); process.exitCode = 1; });
+ws.on("close", (code) => { if (code !== 1000) process.exitCode = 1; });
 ws.on("open", () => ws.send(JSON.stringify({ type: "chat", engine, prompt, ctx: { activeSheet: "Sheet1", selection: "Sheet1!A1" } })));
 ws.on("message", (b) => {
   const m = JSON.parse(b);
@@ -17,6 +20,8 @@ ws.on("message", (b) => {
     const e = m.ev;
     if (e.type === "text_delta") process.stdout.write(e.text);
     else console.log("\nEV", JSON.stringify(e).slice(0, 300));
-    if (e.type === "exit") { ws.send(JSON.stringify({ type: "new_session" })); setTimeout(() => process.exit(0), 300); } // 내 작업창이 이 대화를 잇지 않게
+    if (e.type === "done" && !e.ok) failed = true;
+    if (e.type === "error") { process.exitCode = 1; ws.close(1000); }
+    if (e.type === "exit") { ws.send(JSON.stringify({ type: "new_session" })); setTimeout(() => process.exit(e.code || failed ? 1 : 0), 300); } // 내 작업창이 이 대화를 잇지 않게
   }
 });

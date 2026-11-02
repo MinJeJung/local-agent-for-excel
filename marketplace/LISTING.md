@@ -34,10 +34,11 @@ Local Agent for Sheets는 구글 시트에 대화 사이드바를 띄우고, 내
 Productivity (alt: Developer tools)
 
 ## Links
-- Privacy policy: https://github.com/MinJeJung/local-agent-for-excel/blob/main/PRIVACY.md
-- Terms of service: https://github.com/MinJeJung/local-agent-for-excel/blob/main/TERMS.md
-- Support: https://github.com/MinJeJung/local-agent-for-excel/issues
-- Developer website: https://github.com/MinJeJung/local-agent-for-excel
+- Application homepage: https://mjkacademy.com/local-agent
+- Privacy policy: https://mjkacademy.com/local-agent/privacy (copy of PRIVACY.md)
+- Terms of service: https://mjkacademy.com/local-agent/terms (copy of TERMS.md)
+- Support / report issue: https://github.com/MinJeJung/local-agent-for-excel/issues
+- Developer: MJK Partners (유한회사 엠제이케이파트너스), website https://mjkacademy.com
 
 ## Graphics (this folder)
 - icon-128.png, icon-32.png
@@ -46,6 +47,12 @@ Productivity (alt: Developer tools)
 
 ## Reviewer notes (OAuth verification / Marketplace review)
 The add-on needs a local bridge. Reviewers can install it with `git clone https://github.com/MinJeJung/local-agent-for-excel.git && zsh local-agent-for-excel/scripts/install.sh` on macOS, or watch the demo video (to be recorded). `spreadsheets.currentonly` is used to read and write only the open spreadsheet when the user asks.
+
+## Current setup (2026-11-02)
+- GCP project `local-agent-sheets` (number 290187696880), OAuth: External, production (published 2026-11-02). Authorized domain mjkacademy.com (Search Console verified by DNS TXT).
+- Apps Script add-on project linked to that GCP project. Deployment version 1 ("Marketplace 0.3.0").
+- Marketplace SDK: Public, individual + admin install, Sheets add-on, script version 1. Store listing (English, icons 32/48/96/128, banner, screenshot) submitted for review 2026-11-02; draft is locked while in review.
+- OAuth verification: branding verified and published; data access verification submitted 2026-11-02 (under review). Demo video (unlisted): https://youtu.be/2tu-z5wsbJ8 . Test user mj859833@gmail.com added during testing.
 
 ## Registration steps
 1. Create a Google Cloud project. Configure the OAuth consent screen (External, app name, support email, privacy and terms links, the two scopes).
